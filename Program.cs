@@ -1,5 +1,6 @@
 ﻿// Вавилов Дмитрий. C#
 using System;
+using System.Collections.Generic;
 
 namespace Algorithms
 {
@@ -7,233 +8,273 @@ namespace Algorithms
     {
         static void Main(string[] args)
         {
+            List<BaseMenuItem> Menu = new List<BaseMenuItem>();
+            Menu.Add(new BaseMenuItem("Exit", () => {Console.WriteLine("\n\nBye!");}));
+            Menu.Add(new BaseMenuItem("Decimal to binary", new Action(Task1)));
+            Menu.Add(new BaseMenuItem("Power", new Action(Task2)));
+            Menu.Add(new BaseMenuItem("Calculator", new Action(Task3)));
+            Menu.Add(new BaseMenuItem("Calculator with array", new Action(Task4)));
+
             int task;
 
             do
             {
-                task = GetTask();
-
-                switch (task)
-                {
-                    case 0:
-                        Console.WriteLine("\n\nBye!");
-                        break;
-                    case 1:
-                        Task1();
-                        break;
-                    case 2:
-                        Task2();
-                        break;
-                    case 3:
-                        Task3();
-                        break;
-                    case 4:
-                        Task4();
-                        break;
-                    default:
-                        break;
-                }
+                ShowMenu(Menu);
+                task = GetTask(Menu.Count);
+                Menu[task].DoMenuAction();
             }
             while (task != 0);
 
             Console.ReadKey();
         }
 
+
+        static void ShowMenu(List<BaseMenuItem> menuItems)
+        {
+            Console.Clear();
+
+            for (int i = 0; i < menuItems.Count; i++)
+            {
+                Console.WriteLine($"{i}: {menuItems[i].MenuItemText}");
+            }
+        }
+
         /// <summary>
         /// Выбор задачи
         /// </summary>
         /// <returns></returns>
-        static int GetTask()
+        static int GetTask(int itemsCount)
         {
-            Console.WriteLine();
-            Console.WriteLine("Select an action:");
-            Console.WriteLine("0: Exit");
-            Console.WriteLine("1: Mass index");
-            Console.WriteLine("2: Max of 4 ints");
-            Console.WriteLine("3: Swap 2 ints");
-            Console.WriteLine("4: Age");
-
             string selection = Console.ReadKey().KeyChar.ToString();
-            int res;
+            int res = 0;
 
-            try
+            if (!int.TryParse(selection, out res))
             {
-                res = int.Parse(selection);
+                Console.WriteLine("Incorrect input!");
+                return GetTask(itemsCount);
             }
-            catch (Exception)
+
+            if(res < 0 || res > itemsCount)
             {
-                // Неправильный ввод
-                return GetTask();
+                Console.WriteLine("Incorrect input!");
+                return GetTask(itemsCount);
             }
 
             return res;
         }
 
         /// <summary>
-        /// 1. Ввести вес и рост человека. Рассчитать и вывести индекс массы тела по формуле I=m/(h*h); где m-масса тела в килограммах, h - рост в метрах.
+        /// 1. Реализовать функцию перевода из десятичной системы в двоичную, используя рекурсию.
         /// </summary>
         static void Task1()
         {
-            float m, h;
+            int m;
 
             Console.WriteLine("\n");
-            Console.WriteLine("Enter body mass (kg): ");
+            Console.Write("Enter integer: ");
 
-            if (!float.TryParse(Console.ReadLine(), out m))
+            if (!int.TryParse(Console.ReadLine(), out m))
             {
                 Console.WriteLine("Incorrect input!");
                 return;
             }
 
             Console.WriteLine();
-            Console.WriteLine("Enter body height (m): ");
-            do
-            {
-                if (!float.TryParse(Console.ReadLine(), out h))
-                {
-                    Console.WriteLine("Incorrect input!");
-                    return;
-                }
-
-                if (h == 0)
-                    Console.WriteLine("Height must be non equal to 0.");
-            }
-            while (h == 0);
-
-            Console.WriteLine("Mass index = {0}", MassIndex(m, h));
+            Console.WriteLine("Binary representation: {0}", DecimalToBinary(m));
+            Console.ReadKey();
         }
 
         /// <summary>
-        /// 2. Найти максимальное из четырех чисел. Массивы не использовать.
+        /// 2. Реализовать функцию возведения числа a в степень b:
         /// </summary>
         static void Task2()
         {
-            int i1, i2, i3, i4;
+            int a, b;
 
             Console.WriteLine("\n");
-            Console.WriteLine("Enter four inegers.");
-            if (!int.TryParse(Console.ReadLine(), out i1))
-                return;
-            if (!int.TryParse(Console.ReadLine(), out i2))
-                return;
-            if (!int.TryParse(Console.ReadLine(), out i3))
-                return;
-            if (!int.TryParse(Console.ReadLine(), out i4))
+            Console.Write("Enter <a>: ");
+            if (!int.TryParse(Console.ReadLine(), out a))
                 return;
 
-            Console.WriteLine("Max integer is {0}", MaxInt(i1, i2, i3, i4));
+            Console.Write("Enter <b>: ");
+            if (!int.TryParse(Console.ReadLine(), out b))
+                return;
+
+            Console.WriteLine("{0} powered {1} is {2}", a, b, Power(a, b));
+            Console.ReadKey();
         }
 
         /// <summary>
-        /// 3. Написать программу обмена значениями двух целочисленных переменных
+        /// 3. Исполнитель Калькулятор преобразует целое число, записанное на экране. У исполнителя две команды, каждой команде присвоен номер:
         /// </summary>
         static void Task3()
         {
-            int i1, i2;
-
             Console.WriteLine("\n");
-            Console.WriteLine("Enter two integers.");
-            if (!int.TryParse(Console.ReadLine(), out i1))
-            {
-                Console.WriteLine("Incorrect input!");
-                return;
-            }
-            if (!int.TryParse(Console.ReadLine(), out i2))
-            {
-                Console.WriteLine("Incorrect input!");
-                return;
-            }
-
-            Swap(ref i1, ref i2);
-            Console.WriteLine("i1 = {0}; i2 = {1}", i1, i2);
+            Console.WriteLine("3 to 20 by {0} programs.", Calculator());
+            Console.ReadKey();
         }
 
         /// <summary>
-        /// 6. Ввести возраст человека (от 1 до 150 лет) и вывести его вместе с последующим словом «год», «года» или «лет».
+        /// Решение задачи 3 с использованием массива
         /// </summary>
         static void Task4()
         {
-            int age;
-
             Console.WriteLine("\n");
-            Console.WriteLine("Введите возраст от 1 до 150 лет.");
-
-            do
-            {
-
-            } while (!int.TryParse(Console.ReadLine(), out age) || age < 1 || age > 150);
-
-            Console.WriteLine("{0} {1}", age, StringAge(age));
+            Console.WriteLine("3 to 20 by {0} programs.", CalculatorArray());
+            Console.ReadKey();
         }
 
         /// <summary>
-        /// Индекс массы тела.
+        /// Перевод числа из десятичной системы в двоичную.
         /// </summary>
         /// <param name="m"></param>
-        /// <param name="h"></param>
         /// <returns></returns>
-        static float MassIndex(float m, float h)
+        static string DecimalToBinary(int m)
         {
-            return m / (h * h);
+            if (m == 0)
+                return "";
+            else
+                return DecimalToBinary(m / 2) + (m % 2).ToString();
         }
 
         /// <summary>
-        /// Максимальное число из 4
+        /// Возведение числа в степень.
         /// </summary>
-        /// <param name="i1"></param>
-        /// <param name="i2"></param>
-        /// <param name="i3"></param>
-        /// <param name="i4"></param>
         /// <returns></returns>
-        static int MaxInt(int i1, int i2, int i3, int i4)
+        static int Power(int a, int b)
         {
-            int max;
+            ////Без рекурсии
+            //int res = 1;
+            //for (int i = 0; i < b; i++)
+            //{
+            //    res *= a;
+            //}
+            //return res;
 
-            if (i1 > i2)
-                max = i1;
+            ////Просто с рекурсией
+            //if (b == 0)
+            //    return 1;
+            //else
+            //    return a * Power(a, b-1);
+
+            //С использованием свойства чётности степени
+            if (b == 0)
+                return 1;
+            else if (b == 2)
+                return a * a;
             else
-                max = i2;
-
-            if (i3 > max)
-                max = i3;
-
-            if (i4 > max)
-                max = i4;
-
-            return max;
-        }
-
-        static void Swap(ref int i1, ref int i2)
-        {
-            //// с использованием третьей переменной
-            //int i0 = i1;
-            //i2 = i1;
-            //i1 = i0;
-
-            // без использования третьей переменной
-            i1 ^= i2;
-            i2 = i1 ^ i2;
-            i1 = i1 ^ i2;
+            {
+                if (b % 2 == 0)
+                    return Power(Power(a, b / 2), 2);
+                else
+                    return a * Power(a, b - 1);
+            }
 
         }
 
         /// <summary>
-        /// Возвращает "год", "года" или "лет" в зависимости от переданного значения
+        /// Возвращает число программ, которые преобразуют 3 в 20 с использованием двух команд: +1 и *2.
+        /// </summary>
+        static int Calculator()
+        {
+            return DoCalcStep(3, 20, 0) + DoCalcStep(3, 20, 1);
+        }
+
+        /// <summary>
+        /// Операция калькулятора.
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="finish"></param>
+        /// <param name="comand">0 - прибавление 1; 1 - умножение на 2</param>
+        /// <returns></returns>
+        static int DoCalcStep(int start, int finish, int comand)
+        {
+            switch (comand)
+            {
+                case 0:
+                    //+1
+                    start += 1;
+                    break;
+                case 1:
+                    //*2
+                    start *= 2;
+                    break;
+                default:
+                    break;
+            }
+
+            if (start == finish)
+                return 1;
+            else if (start > finish)
+                return 0;
+            else
+                return DoCalcStep(start, finish, 0) + DoCalcStep(start, finish, 1);
+        }
+
+        /// <summary>
+        /// Задача про калькулятор, но с использованием массива.
         /// </summary>
         /// <returns></returns>
-        static string StringAge(int age)
+        static int CalculatorArray()
         {
-            string res = "";
-            int ost = age % 10;
+            int start = 3, finish = 20;
 
-            if (ost == 1 && age % 100 != 11)
-                res = "год";
-            else if(ost == 0 || (age % 100 > 10 && age % 100 < 20))
-                res = "лет";
-            else
-                res = "года";
+            List<string> programs = new List<string>();
 
-            return res;
+            string mask = "";
+            for (int i = 0; i <= finish - start; i++)
+            {
+                mask += "0";
+            }
+
+            string checkP;
+            for (int i = 0; i <= Power(2, finish - start); i++)
+            {
+                checkP = CheckProgram(i, start, finish, mask);
+                if (checkP != "")
+                {
+                    if (!programs.Contains(checkP))
+                        programs.Add(checkP);
+                }
+            }
+
+            return programs.Count;
+        }
+
+        //Проверка программы. Программа представляется в виде двоичного числа размером не больше программы из одних только прибавлений единицы.
+        static string CheckProgram(int p, int start, int finish, string mask)
+        {
+            string outStr = "";
+            string strP = DecimalToBinary(p);
+            if (strP.Length > finish - start)
+                return outStr;
+
+
+            strP = mask.Substring(0, (finish - start) - strP.Length) + strP;
+            int res = start;
+            for (int i = 0; i < strP.Length; i++)
+            {
+                char item = strP[i];
+                switch (item)
+                {
+                    case '0':
+                        res += 1;
+                        break;
+                    case '1':
+                        res *= 2;
+                        break;
+                    default:
+                        break;
+                }
+
+                if (res == finish)
+                {
+                    outStr = strP.Substring(0, i+1);
+                    break;
+                }
+            }
+
+            return outStr;
         }
     }
 }
