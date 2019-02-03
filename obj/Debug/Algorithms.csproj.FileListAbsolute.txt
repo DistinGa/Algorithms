@@ -1,0 +1,7 @@
+N:\DIMA\GeekBrains\МОИ\Algorithms\Algorithms\bin\Debug\Algorithms.exe.config
+N:\DIMA\GeekBrains\МОИ\Algorithms\Algorithms\bin\Debug\Algorithms.exe
+N:\DIMA\GeekBrains\МОИ\Algorithms\Algorithms\bin\Debug\Algorithms.pdb
+N:\DIMA\GeekBrains\МОИ\Algorithms\Algorithms\obj\Debug\Algorithms.csprojAssemblyReference.cache
+N:\DIMA\GeekBrains\МОИ\Algorithms\Algorithms\obj\Debug\Algorithms.csproj.CoreCompileInputs.cache
+N:\DIMA\GeekBrains\МОИ\Algorithms\Algorithms\obj\Debug\Algorithms.exe
+N:\DIMA\GeekBrains\МОИ\Algorithms\Algorithms\obj\Debug\Algorithms.pdb
