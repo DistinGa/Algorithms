@@ -1,5 +1,6 @@
 ﻿// Вавилов Дмитрий. C#
 using System;
+using System.Collections.Generic;
 
 namespace Algorithms
 {
@@ -7,233 +8,322 @@ namespace Algorithms
     {
         static void Main(string[] args)
         {
+            List<BaseMenuItem> Menu = new List<BaseMenuItem>();
+            Menu.Add(new BaseMenuItem("Exit", () => {Console.WriteLine("\n\nBye!");}));
+            Menu.Add(new BaseMenuItem("Optimized bubble sort", new Action(Task1)));
+            Menu.Add(new BaseMenuItem("Shaker sort", new Action(Task2)));
+            Menu.Add(new BaseMenuItem("Binary serch", new Action(Task3)));
+
             int task;
 
             do
             {
-                task = GetTask();
-
-                switch (task)
-                {
-                    case 0:
-                        Console.WriteLine("\n\nBye!");
-                        break;
-                    case 1:
-                        Task1();
-                        break;
-                    case 2:
-                        Task2();
-                        break;
-                    case 3:
-                        Task3();
-                        break;
-                    case 4:
-                        Task4();
-                        break;
-                    default:
-                        break;
-                }
+                ShowMenu(Menu);
+                task = GetTask(Menu.Count);
+                Menu[task].DoMenuAction();
             }
             while (task != 0);
 
             Console.ReadKey();
         }
 
+
+        static void ShowMenu(List<BaseMenuItem> menuItems)
+        {
+            Console.Clear();
+
+            for (int i = 0; i < menuItems.Count; i++)
+            {
+                Console.WriteLine($"{i}: {menuItems[i].MenuItemText}");
+            }
+        }
+
         /// <summary>
         /// Выбор задачи
         /// </summary>
         /// <returns></returns>
-        static int GetTask()
+        static int GetTask(int itemsCount)
         {
-            Console.WriteLine();
-            Console.WriteLine("Select an action:");
-            Console.WriteLine("0: Exit");
-            Console.WriteLine("1: Mass index");
-            Console.WriteLine("2: Max of 4 ints");
-            Console.WriteLine("3: Swap 2 ints");
-            Console.WriteLine("4: Age");
-
             string selection = Console.ReadKey().KeyChar.ToString();
-            int res;
+            int res = 0;
 
-            try
+            if (!int.TryParse(selection, out res))
             {
-                res = int.Parse(selection);
+                Console.WriteLine("Incorrect input!");
+                return GetTask(itemsCount);
             }
-            catch (Exception)
+
+            if(res < 0 || res > itemsCount)
             {
-                // Неправильный ввод
-                return GetTask();
+                Console.WriteLine("Incorrect input!");
+                return GetTask(itemsCount);
             }
 
             return res;
         }
 
         /// <summary>
-        /// 1. Ввести вес и рост человека. Рассчитать и вывести индекс массы тела по формуле I=m/(h*h); где m-масса тела в килограммах, h - рост в метрах.
+        /// 1. Попробовать оптимизировать пузырьковую сортировку. Сравнить количество операций сравнения оптимизированной и не оптимизированной программы.
+        /// Написать функции сортировки, которые возвращают количество операций.
         /// </summary>
         static void Task1()
         {
-            float m, h;
-
             Console.WriteLine("\n");
-            Console.WriteLine("Enter body mass (kg): ");
 
-            if (!float.TryParse(Console.ReadLine(), out m))
+            int[] array = GetRandomArray(20);
+            int[] array2 = array.Clone() as int[];
+
+            Console.WriteLine("Initial array:");
+            foreach (var item in array)
             {
-                Console.WriteLine("Incorrect input!");
-                return;
+                Console.Write($"{item}\t");
             }
-
             Console.WriteLine();
-            Console.WriteLine("Enter body height (m): ");
-            do
+
+            var metrics1 = BubbleSort(ref array);
+            var metrics2 = BubbleSortOpt(ref array2);
+
+            Console.WriteLine("Sorted:");
+            foreach (var item in array)
             {
-                if (!float.TryParse(Console.ReadLine(), out h))
-                {
-                    Console.WriteLine("Incorrect input!");
-                    return;
-                }
-
-                if (h == 0)
-                    Console.WriteLine("Height must be non equal to 0.");
+                Console.Write($"{item}\t");
             }
-            while (h == 0);
+            Console.WriteLine($"metrics: compares = {metrics1.Compares}, swaps = {metrics1.Swaps}\n");
 
-            Console.WriteLine("Mass index = {0}", MassIndex(m, h));
+            Console.WriteLine("Sorted 2:");
+            foreach (var item in array2)
+            {
+                Console.Write($"{item}\t");
+            }
+            Console.WriteLine($"metrics: compares = {metrics2.Compares}, swaps = {metrics2.Swaps}");
+
+            Console.ReadKey();
         }
 
         /// <summary>
-        /// 2. Найти максимальное из четырех чисел. Массивы не использовать.
+        /// 2. *Реализовать шейкерную сортировку.
         /// </summary>
         static void Task2()
         {
-            int i1, i2, i3, i4;
-
             Console.WriteLine("\n");
-            Console.WriteLine("Enter four inegers.");
-            if (!int.TryParse(Console.ReadLine(), out i1))
-                return;
-            if (!int.TryParse(Console.ReadLine(), out i2))
-                return;
-            if (!int.TryParse(Console.ReadLine(), out i3))
-                return;
-            if (!int.TryParse(Console.ReadLine(), out i4))
-                return;
 
-            Console.WriteLine("Max integer is {0}", MaxInt(i1, i2, i3, i4));
+            int[] array = GetRandomArray(20);
+            int[] array2 = array.Clone() as int[];
+            int[] array3 = array.Clone() as int[];
+
+            Console.WriteLine("Initial array:");
+            foreach (var item in array)
+            {
+                Console.Write($"{item}\t");
+            }
+            Console.WriteLine();
+
+            var metrics1 = BubbleSort(ref array);
+            var metrics2 = ShakerSort(ref array2);
+            var metrics3 = BubbleSortOpt(ref array3);
+
+            Console.WriteLine("Sorted by bubble sort:");
+            foreach (var item in array)
+            {
+                Console.Write($"{item}\t");
+            }
+            Console.WriteLine($"metrics: compares = {metrics1.Compares}, swaps = {metrics1.Swaps}\n");
+
+            Console.WriteLine("Sorted by shaker sort:");
+            foreach (var item in array2)
+            {
+                Console.Write($"{item}\t");
+            }
+            Console.WriteLine($"metrics: compares = {metrics2.Compares}, swaps = {metrics2.Swaps}");
+            Console.WriteLine($"optimized bubble metrics: compares = {metrics3.Compares}, swaps = {metrics3.Swaps}");
+
+            Console.ReadKey();
         }
 
         /// <summary>
-        /// 3. Написать программу обмена значениями двух целочисленных переменных
+        /// 3. Реализовать бинарный алгоритм поиска в виде функции, которой передается отсортированный массив.
+        /// Функция возвращает индекс найденного элемента или -1, если элемент не найден.
         /// </summary>
         static void Task3()
         {
-            int i1, i2;
+            int value;
 
             Console.WriteLine("\n");
-            Console.WriteLine("Enter two integers.");
-            if (!int.TryParse(Console.ReadLine(), out i1))
+
+            int[] array = GetRandomArray(20);
+            BubbleSortOpt(ref array);
+
+            Console.WriteLine("Initial array:");
+            foreach (var item in array)
             {
-                Console.WriteLine("Incorrect input!");
-                return;
-            }
-            if (!int.TryParse(Console.ReadLine(), out i2))
-            {
-                Console.WriteLine("Incorrect input!");
-                return;
+                Console.Write($"{item}\t");
             }
 
-            Swap(ref i1, ref i2);
-            Console.WriteLine("i1 = {0}; i2 = {1}", i1, i2);
-        }
-
-        /// <summary>
-        /// 6. Ввести возраст человека (от 1 до 150 лет) и вывести его вместе с последующим словом «год», «года» или «лет».
-        /// </summary>
-        static void Task4()
-        {
-            int age;
-
-            Console.WriteLine("\n");
-            Console.WriteLine("Введите возраст от 1 до 150 лет.");
-
-            do
+            Console.WriteLine("\nEnter search value: ");
+            var str = Console.ReadLine();
+            while (!int.TryParse(str, out value))
             {
+                Console.WriteLine("\nIncorrect input.");
+                str = Console.ReadLine();
+            }
+            Console.WriteLine();
 
-            } while (!int.TryParse(Console.ReadLine(), out age) || age < 1 || age > 150);
-
-            Console.WriteLine("{0} {1}", age, StringAge(age));
-        }
-
-        /// <summary>
-        /// Индекс массы тела.
-        /// </summary>
-        /// <param name="m"></param>
-        /// <param name="h"></param>
-        /// <returns></returns>
-        static float MassIndex(float m, float h)
-        {
-            return m / (h * h);
-        }
-
-        /// <summary>
-        /// Максимальное число из 4
-        /// </summary>
-        /// <param name="i1"></param>
-        /// <param name="i2"></param>
-        /// <param name="i3"></param>
-        /// <param name="i4"></param>
-        /// <returns></returns>
-        static int MaxInt(int i1, int i2, int i3, int i4)
-        {
-            int max;
-
-            if (i1 > i2)
-                max = i1;
+            value = BinarySearch(array, value);
+            if(value > -1)
+                Console.WriteLine($"Index of seached value is {value}");
             else
-                max = i2;
+                Console.WriteLine("Value is not found.");
 
-            if (i3 > max)
-                max = i3;
-
-            if (i4 > max)
-                max = i4;
-
-            return max;
+            Console.ReadKey();
         }
 
-        static void Swap(ref int i1, ref int i2)
+        static void Swap(ref int a, ref int b)
         {
-            //// с использованием третьей переменной
-            //int i0 = i1;
-            //i2 = i1;
-            //i1 = i0;
-
-            // без использования третьей переменной
-            i1 ^= i2;
-            i2 = i1 ^ i2;
-            i1 = i1 ^ i2;
-
+            int tmp = a;
+            a = b;
+            b = tmp;
         }
 
         /// <summary>
-        /// Возвращает "год", "года" или "лет" в зависимости от переданного значения
+        /// Получить массив случайных значений
         /// </summary>
+        /// <param name="length"></param>
+        /// <param name="maxValue"></param>
         /// <returns></returns>
-        static string StringAge(int age)
+        static int[] GetRandomArray(int length, int maxValue = 100)
         {
-            string res = "";
-            int ost = age % 10;
+            int[] res = new int[length];
 
-            if (ost == 1 && age % 100 != 11)
-                res = "год";
-            else if(ost == 0 || (age % 100 > 10 && age % 100 < 20))
-                res = "лет";
-            else
-                res = "года";
+            Random rnd = new Random();
+
+            for (int i = 0; i < length; i++)
+            {
+                res[i] = rnd.Next(maxValue);
+            }
 
             return res;
+        }
+
+        /// <summary>
+        /// Обычная сортировка методом пузырька.
+        /// </summary>
+        /// <param name="intArray"></param>
+        /// <returns></returns>
+        static SortingMetrics BubbleSort(ref int[] intArray, bool assend = true)
+        {
+            SortingMetrics res = new SortingMetrics() {Swaps = 0, Compares = 0};
+
+            for (int i = 0; i < intArray.Length; i++)
+            {
+                for (int j = 0; j < intArray.Length - 1; j++)
+                {
+                    res.Compares++;
+
+                    if ((assend && intArray[j] > intArray[j + 1]) || (!assend && intArray[j] < intArray[j + 1]))
+                    {
+                        Swap(ref intArray[j], ref intArray[j + 1]);
+                        res.Swaps++;
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        /// <summary>
+        /// Оптимизированная сортировка методом пузырька.
+        /// </summary>
+        /// <param name="intArray"></param>
+        /// <returns></returns>
+        static SortingMetrics BubbleSortOpt(ref int[] intArray, bool assend = true)
+        {
+            SortingMetrics res = new SortingMetrics() { Swaps = 0, Compares = 0 };
+
+            int tmp = 0;
+            for (int i = 0; i < intArray.Length; i++)
+            {
+                tmp = 0;
+                for (int j = 0; j < intArray.Length - 1 - i; j++)
+                {
+                    res.Compares++;
+
+                    if ((assend && intArray[j] > intArray[j + 1]) || (!assend && intArray[j] < intArray[j + 1]))
+                    {
+                        tmp++;
+                        Swap(ref intArray[j], ref intArray[j + 1]);
+                        res.Swaps++;
+                    }
+                }
+
+                // Если перестановок не было, массив отсортирован.
+                if (tmp == 0)
+                    break;
+            }
+
+            return res;
+        }
+
+        static SortingMetrics ShakerSort(ref int[] intArray, bool assend = true)
+        {
+            SortingMetrics res = new SortingMetrics() { Swaps = 0, Compares = 0 };
+
+            int tmp = 0;
+            int indx;
+            for (int i = 0; i < intArray.Length; i++)
+            {
+                tmp = 0;
+                for (int j = 0; j < intArray.Length - 1; j++)
+                {
+                    res.Compares++;
+
+                    if (i % 2 == 0)
+                        indx = intArray.Length - 2 - j;
+                    else
+                        indx = j;
+
+                    if ((assend && intArray[indx] > intArray[indx + 1]) || (!assend && intArray[indx] < intArray[indx + 1]))
+                    {
+                        tmp++;
+                        Swap(ref intArray[indx], ref intArray[indx + 1]);
+                        res.Swaps++;
+                    }
+                }
+
+                // Если перестановок не было или была только одна, массив отсортирован.
+                if (tmp == 0)
+                    break;
+            }
+
+            return res;
+        }
+
+
+        /// <summary>
+        /// Бинарный поиск.
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        static int BinarySearch(int[] array, int value)
+        {
+            int index = -1;
+            int left = 0, right = array.Length - 1;
+            int mid = (left + right) / 2;
+
+            while (array[mid] != value && left <= right)
+            {
+                if (array[mid] < value)
+                    left = mid + 1;
+                else
+                    right = mid - 1;
+
+                mid = (left + right) / 2;
+            }
+
+            if (array[mid] == value)
+                index = mid;
+
+            return index;
         }
     }
 }
