@@ -268,7 +268,7 @@ namespace Algorithms
             SortingMetrics res = new SortingMetrics() { Swaps = 0, Compares = 0 };
 
             int tmp = 0;
-            int item;
+            int indx;
             for (int i = 0; i < intArray.Length; i++)
             {
                 tmp = 0;
@@ -277,14 +277,14 @@ namespace Algorithms
                     res.Compares++;
 
                     if (i % 2 == 0)
-                        item = intArray[intArray.Length - 2 - j];
+                        indx = intArray.Length - 2 - j;
                     else
-                        item = intArray[j];
+                        indx = j;
 
-                    if ((assend && intArray[j] > intArray[j + 1]) || (!assend && intArray[j] < intArray[j + 1]))
+                    if ((assend && intArray[indx] > intArray[indx + 1]) || (!assend && intArray[indx] < intArray[indx + 1]))
                     {
                         tmp++;
-                        Swap(ref intArray[j], ref intArray[j + 1]);
+                        Swap(ref intArray[indx], ref intArray[indx + 1]);
                         res.Swaps++;
                     }
                 }
