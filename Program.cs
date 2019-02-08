@@ -10,10 +10,9 @@ namespace Algorithms
         {
             List<BaseMenuItem> Menu = new List<BaseMenuItem>();
             Menu.Add(new BaseMenuItem("Exit", () => {Console.WriteLine("\n\nBye!");}));
-            Menu.Add(new BaseMenuItem("Decimal to binary", new Action(Task1)));
-            Menu.Add(new BaseMenuItem("Power", new Action(Task2)));
-            Menu.Add(new BaseMenuItem("Calculator", new Action(Task3)));
-            Menu.Add(new BaseMenuItem("Calculator with array", new Action(Task4)));
+            Menu.Add(new BaseMenuItem("Optimized bubble sort", new Action(Task1)));
+            Menu.Add(new BaseMenuItem("Shaker sort", new Action(Task2)));
+            Menu.Add(new BaseMenuItem("Binary serch", new Action(Task3)));
 
             int task;
 
@@ -64,217 +63,267 @@ namespace Algorithms
         }
 
         /// <summary>
-        /// 1. Реализовать функцию перевода из десятичной системы в двоичную, используя рекурсию.
+        /// 1. Попробовать оптимизировать пузырьковую сортировку. Сравнить количество операций сравнения оптимизированной и не оптимизированной программы.
+        /// Написать функции сортировки, которые возвращают количество операций.
         /// </summary>
         static void Task1()
         {
-            int m;
-
             Console.WriteLine("\n");
-            Console.Write("Enter integer: ");
 
-            if (!int.TryParse(Console.ReadLine(), out m))
+            int[] array = GetRandomArray(20);
+            int[] array2 = array.Clone() as int[];
+
+            Console.WriteLine("Initial array:");
+            foreach (var item in array)
             {
-                Console.WriteLine("Incorrect input!");
-                return;
+                Console.Write($"{item}\t");
             }
-
             Console.WriteLine();
-            Console.WriteLine("Binary representation: {0}", DecimalToBinary(m));
+
+            var metrics1 = BubbleSort(ref array);
+            var metrics2 = BubbleSortOpt(ref array2);
+
+            Console.WriteLine("Sorted:");
+            foreach (var item in array)
+            {
+                Console.Write($"{item}\t");
+            }
+            Console.WriteLine($"metrics: compares = {metrics1.Compares}, swaps = {metrics1.Swaps}\n");
+
+            Console.WriteLine("Sorted 2:");
+            foreach (var item in array2)
+            {
+                Console.Write($"{item}\t");
+            }
+            Console.WriteLine($"metrics: compares = {metrics2.Compares}, swaps = {metrics2.Swaps}");
+
             Console.ReadKey();
         }
 
         /// <summary>
-        /// 2. Реализовать функцию возведения числа a в степень b:
+        /// 2. *Реализовать шейкерную сортировку.
         /// </summary>
         static void Task2()
         {
-            int a, b;
-
             Console.WriteLine("\n");
-            Console.Write("Enter <a>: ");
-            if (!int.TryParse(Console.ReadLine(), out a))
-                return;
 
-            Console.Write("Enter <b>: ");
-            if (!int.TryParse(Console.ReadLine(), out b))
-                return;
+            int[] array = GetRandomArray(20);
+            int[] array2 = array.Clone() as int[];
+            int[] array3 = array.Clone() as int[];
 
-            Console.WriteLine("{0} powered {1} is {2}", a, b, Power(a, b));
+            Console.WriteLine("Initial array:");
+            foreach (var item in array)
+            {
+                Console.Write($"{item}\t");
+            }
+            Console.WriteLine();
+
+            var metrics1 = BubbleSort(ref array);
+            var metrics2 = ShakerSort(ref array2);
+            var metrics3 = BubbleSortOpt(ref array3);
+
+            Console.WriteLine("Sorted by bubble sort:");
+            foreach (var item in array)
+            {
+                Console.Write($"{item}\t");
+            }
+            Console.WriteLine($"metrics: compares = {metrics1.Compares}, swaps = {metrics1.Swaps}\n");
+
+            Console.WriteLine("Sorted by shaker sort:");
+            foreach (var item in array2)
+            {
+                Console.Write($"{item}\t");
+            }
+            Console.WriteLine($"metrics: compares = {metrics2.Compares}, swaps = {metrics2.Swaps}");
+            Console.WriteLine($"optimized bubble metrics: compares = {metrics3.Compares}, swaps = {metrics3.Swaps}");
+
             Console.ReadKey();
         }
 
         /// <summary>
-        /// 3. Исполнитель Калькулятор преобразует целое число, записанное на экране. У исполнителя две команды, каждой команде присвоен номер:
+        /// 3. Реализовать бинарный алгоритм поиска в виде функции, которой передается отсортированный массив.
+        /// Функция возвращает индекс найденного элемента или -1, если элемент не найден.
         /// </summary>
         static void Task3()
         {
+            int value;
+
             Console.WriteLine("\n");
-            Console.WriteLine("3 to 20 by {0} programs.", Calculator());
-            Console.ReadKey();
-        }
 
-        /// <summary>
-        /// Решение задачи 3 с использованием массива
-        /// </summary>
-        static void Task4()
-        {
-            Console.WriteLine("\n");
-            Console.WriteLine("3 to 20 by {0} programs.", CalculatorArray());
-            Console.ReadKey();
-        }
+            int[] array = GetRandomArray(20);
+            BubbleSortOpt(ref array);
 
-        /// <summary>
-        /// Перевод числа из десятичной системы в двоичную.
-        /// </summary>
-        /// <param name="m"></param>
-        /// <returns></returns>
-        static string DecimalToBinary(int m)
-        {
-            if (m == 0)
-                return "";
-            else
-                return DecimalToBinary(m / 2) + (m % 2).ToString();
-        }
-
-        /// <summary>
-        /// Возведение числа в степень.
-        /// </summary>
-        /// <returns></returns>
-        static int Power(int a, int b)
-        {
-            ////Без рекурсии
-            //int res = 1;
-            //for (int i = 0; i < b; i++)
-            //{
-            //    res *= a;
-            //}
-            //return res;
-
-            ////Просто с рекурсией
-            //if (b == 0)
-            //    return 1;
-            //else
-            //    return a * Power(a, b-1);
-
-            //С использованием свойства чётности степени
-            if (b == 0)
-                return 1;
-            else if (b == 2)
-                return a * a;
-            else
+            Console.WriteLine("Initial array:");
+            foreach (var item in array)
             {
-                if (b % 2 == 0)
-                    return Power(Power(a, b / 2), 2);
+                Console.Write($"{item}\t");
+            }
+
+            Console.WriteLine("\nEnter search value: ");
+            var str = Console.ReadLine();
+            while (!int.TryParse(str, out value))
+            {
+                Console.WriteLine("\nIncorrect input.");
+                str = Console.ReadLine();
+            }
+            Console.WriteLine();
+
+            value = BinarySearch(array, value);
+            if(value > -1)
+                Console.WriteLine($"Index of seached value is {value}");
+            else
+                Console.WriteLine("Value is not found.");
+
+            Console.ReadKey();
+        }
+
+        static void Swap(ref int a, ref int b)
+        {
+            int tmp = a;
+            a = b;
+            b = tmp;
+        }
+
+        /// <summary>
+        /// Получить массив случайных значений
+        /// </summary>
+        /// <param name="length"></param>
+        /// <param name="maxValue"></param>
+        /// <returns></returns>
+        static int[] GetRandomArray(int length, int maxValue = 100)
+        {
+            int[] res = new int[length];
+
+            Random rnd = new Random();
+
+            for (int i = 0; i < length; i++)
+            {
+                res[i] = rnd.Next(maxValue);
+            }
+
+            return res;
+        }
+
+        /// <summary>
+        /// Обычная сортировка методом пузырька.
+        /// </summary>
+        /// <param name="intArray"></param>
+        /// <returns></returns>
+        static SortingMetrics BubbleSort(ref int[] intArray, bool assend = true)
+        {
+            SortingMetrics res = new SortingMetrics() {Swaps = 0, Compares = 0};
+
+            for (int i = 0; i < intArray.Length; i++)
+            {
+                for (int j = 0; j < intArray.Length - 1; j++)
+                {
+                    res.Compares++;
+
+                    if ((assend && intArray[j] > intArray[j + 1]) || (!assend && intArray[j] < intArray[j + 1]))
+                    {
+                        Swap(ref intArray[j], ref intArray[j + 1]);
+                        res.Swaps++;
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        /// <summary>
+        /// Оптимизированная сортировка методом пузырька.
+        /// </summary>
+        /// <param name="intArray"></param>
+        /// <returns></returns>
+        static SortingMetrics BubbleSortOpt(ref int[] intArray, bool assend = true)
+        {
+            SortingMetrics res = new SortingMetrics() { Swaps = 0, Compares = 0 };
+
+            int tmp = 0;
+            for (int i = 0; i < intArray.Length; i++)
+            {
+                tmp = 0;
+                for (int j = 0; j < intArray.Length - 1 - i; j++)
+                {
+                    res.Compares++;
+
+                    if ((assend && intArray[j] > intArray[j + 1]) || (!assend && intArray[j] < intArray[j + 1]))
+                    {
+                        tmp++;
+                        Swap(ref intArray[j], ref intArray[j + 1]);
+                        res.Swaps++;
+                    }
+                }
+
+                // Если перестановок не было, массив отсортирован.
+                if (tmp == 0)
+                    break;
+            }
+
+            return res;
+        }
+
+        static SortingMetrics ShakerSort(ref int[] intArray, bool assend = true)
+        {
+            SortingMetrics res = new SortingMetrics() { Swaps = 0, Compares = 0 };
+
+            int tmp = 0;
+            int item;
+            for (int i = 0; i < intArray.Length; i++)
+            {
+                tmp = 0;
+                for (int j = 0; j < intArray.Length - 1; j++)
+                {
+                    res.Compares++;
+
+                    if (i % 2 == 0)
+                        item = intArray[intArray.Length - 2 - j];
+                    else
+                        item = intArray[j];
+
+                    if ((assend && intArray[j] > intArray[j + 1]) || (!assend && intArray[j] < intArray[j + 1]))
+                    {
+                        tmp++;
+                        Swap(ref intArray[j], ref intArray[j + 1]);
+                        res.Swaps++;
+                    }
+                }
+
+                // Если перестановок не было или была только одна, массив отсортирован.
+                if (tmp == 0)
+                    break;
+            }
+
+            return res;
+        }
+
+
+        /// <summary>
+        /// Бинарный поиск.
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        static int BinarySearch(int[] array, int value)
+        {
+            int index = -1;
+            int left = 0, right = array.Length - 1;
+            int mid = (left + right) / 2;
+
+            while (array[mid] != value && left <= right)
+            {
+                if (array[mid] < value)
+                    left = mid + 1;
                 else
-                    return a * Power(a, b - 1);
+                    right = mid - 1;
+
+                mid = (left + right) / 2;
             }
 
-        }
+            if (array[mid] == value)
+                index = mid;
 
-        /// <summary>
-        /// Возвращает число программ, которые преобразуют 3 в 20 с использованием двух команд: +1 и *2.
-        /// </summary>
-        static int Calculator()
-        {
-            return DoCalcStep(3, 20, 0) + DoCalcStep(3, 20, 1);
-        }
-
-        /// <summary>
-        /// Операция калькулятора.
-        /// </summary>
-        /// <param name="start"></param>
-        /// <param name="finish"></param>
-        /// <param name="comand">0 - прибавление 1; 1 - умножение на 2</param>
-        /// <returns></returns>
-        static int DoCalcStep(int start, int finish, int comand)
-        {
-            switch (comand)
-            {
-                case 0:
-                    //+1
-                    start += 1;
-                    break;
-                case 1:
-                    //*2
-                    start *= 2;
-                    break;
-                default:
-                    break;
-            }
-
-            if (start == finish)
-                return 1;
-            else if (start > finish)
-                return 0;
-            else
-                return DoCalcStep(start, finish, 0) + DoCalcStep(start, finish, 1);
-        }
-
-        /// <summary>
-        /// Задача про калькулятор, но с использованием массива.
-        /// </summary>
-        /// <returns></returns>
-        static int CalculatorArray()
-        {
-            int start = 3, finish = 20;
-
-            List<string> programs = new List<string>();
-
-            string mask = "";
-            for (int i = 0; i <= finish - start; i++)
-            {
-                mask += "0";
-            }
-
-            string checkP;
-            for (int i = 0; i <= Power(2, finish - start); i++)
-            {
-                checkP = CheckProgram(i, start, finish, mask);
-                if (checkP != "")
-                {
-                    if (!programs.Contains(checkP))
-                        programs.Add(checkP);
-                }
-            }
-
-            return programs.Count;
-        }
-
-        //Проверка программы. Программа представляется в виде двоичного числа размером не больше программы из одних только прибавлений единицы.
-        static string CheckProgram(int p, int start, int finish, string mask)
-        {
-            string outStr = "";
-            string strP = DecimalToBinary(p);
-            if (strP.Length > finish - start)
-                return outStr;
-
-
-            strP = mask.Substring(0, (finish - start) - strP.Length) + strP;
-            int res = start;
-            for (int i = 0; i < strP.Length; i++)
-            {
-                char item = strP[i];
-                switch (item)
-                {
-                    case '0':
-                        res += 1;
-                        break;
-                    case '1':
-                        res *= 2;
-                        break;
-                    default:
-                        break;
-                }
-
-                if (res == finish)
-                {
-                    outStr = strP.Substring(0, i+1);
-                    break;
-                }
-            }
-
-            return outStr;
+            return index;
         }
     }
 }
