@@ -1,5 +1,6 @@
 ﻿// Вавилов Дмитрий. C#
 using System;
+using System.Collections.Generic;
 
 namespace Algorithms
 {
@@ -7,233 +8,181 @@ namespace Algorithms
     {
         static void Main(string[] args)
         {
+            List<BaseMenuItem> Menu = new List<BaseMenuItem>();
+            Menu.Add(new BaseMenuItem("Exit", () => {Console.WriteLine("\n\nBye!");}));
+            Menu.Add(new BaseMenuItem("Simple hash", new Action(Task1)));
+            Menu.Add(new BaseMenuItem("Binary search tree", new Action(Task2)));
+
             int task;
 
             do
             {
-                task = GetTask();
-
-                switch (task)
-                {
-                    case 0:
-                        Console.WriteLine("\n\nBye!");
-                        break;
-                    case 1:
-                        Task1();
-                        break;
-                    case 2:
-                        Task2();
-                        break;
-                    case 3:
-                        Task3();
-                        break;
-                    case 4:
-                        Task4();
-                        break;
-                    default:
-                        break;
-                }
+                ShowMenu(Menu);
+                task = GetTask(Menu.Count);
+                Menu[task].DoMenuAction();
             }
             while (task != 0);
 
             Console.ReadKey();
         }
 
+
+        static void ShowMenu(List<BaseMenuItem> menuItems)
+        {
+            Console.Clear();
+
+            for (int i = 0; i < menuItems.Count; i++)
+            {
+                Console.WriteLine($"{i}: {menuItems[i].MenuItemText}");
+            }
+        }
+
         /// <summary>
         /// Выбор задачи
         /// </summary>
         /// <returns></returns>
-        static int GetTask()
+        static int GetTask(int itemsCount)
         {
-            Console.WriteLine();
-            Console.WriteLine("Select an action:");
-            Console.WriteLine("0: Exit");
-            Console.WriteLine("1: Mass index");
-            Console.WriteLine("2: Max of 4 ints");
-            Console.WriteLine("3: Swap 2 ints");
-            Console.WriteLine("4: Age");
-
             string selection = Console.ReadKey().KeyChar.ToString();
-            int res;
+            int res = 0;
 
-            try
+            if (!int.TryParse(selection, out res))
             {
-                res = int.Parse(selection);
+                Console.WriteLine("Incorrect input!");
+                return GetTask(itemsCount);
             }
-            catch (Exception)
+
+            if(res < 0 || res > itemsCount)
             {
-                // Неправильный ввод
-                return GetTask();
+                Console.WriteLine("Incorrect input!");
+                return GetTask(itemsCount);
             }
 
             return res;
         }
 
         /// <summary>
-        /// 1. Ввести вес и рост человека. Рассчитать и вывести индекс массы тела по формуле I=m/(h*h); где m-масса тела в килограммах, h - рост в метрах.
+        /// 1. Реализовать простейшую хеш-функцию. На вход функции подается строка, на выходе сумма кодов символов.
         /// </summary>
         static void Task1()
         {
-            float m, h;
-
             Console.WriteLine("\n");
-            Console.WriteLine("Enter body mass (kg): ");
+            Console.WriteLine("Input string\n");
 
-            if (!float.TryParse(Console.ReadLine(), out m))
-            {
-                Console.WriteLine("Incorrect input!");
-                return;
-            }
+            string str = Console.ReadLine();
+            Console.WriteLine($"Hash {str} is: {GetHash(str)}");
 
-            Console.WriteLine();
-            Console.WriteLine("Enter body height (m): ");
-            do
-            {
-                if (!float.TryParse(Console.ReadLine(), out h))
-                {
-                    Console.WriteLine("Incorrect input!");
-                    return;
-                }
-
-                if (h == 0)
-                    Console.WriteLine("Height must be non equal to 0.");
-            }
-            while (h == 0);
-
-            Console.WriteLine("Mass index = {0}", MassIndex(m, h));
+            Console.ReadKey();
         }
 
         /// <summary>
-        /// 2. Найти максимальное из четырех чисел. Массивы не использовать.
+        /// 2. Переписать программу, реализующую двоичное дерево поиска.
+        /// а) Добавить в него обход дерева различными способами;
+        /// б) Реализовать поиск в двоичном дереве поиска;
         /// </summary>
         static void Task2()
         {
-            int i1, i2, i3, i4;
-
             Console.WriteLine("\n");
-            Console.WriteLine("Enter four inegers.");
-            if (!int.TryParse(Console.ReadLine(), out i1))
-                return;
-            if (!int.TryParse(Console.ReadLine(), out i2))
-                return;
-            if (!int.TryParse(Console.ReadLine(), out i3))
-                return;
-            if (!int.TryParse(Console.ReadLine(), out i4))
-                return;
-
-            Console.WriteLine("Max integer is {0}", MaxInt(i1, i2, i3, i4));
-        }
-
-        /// <summary>
-        /// 3. Написать программу обмена значениями двух целочисленных переменных
-        /// </summary>
-        static void Task3()
-        {
-            int i1, i2;
-
-            Console.WriteLine("\n");
-            Console.WriteLine("Enter two integers.");
-            if (!int.TryParse(Console.ReadLine(), out i1))
+            Console.WriteLine("Input elements count\n");
+            int n;
+            if (!int.TryParse(Console.ReadLine(), out n))
             {
-                Console.WriteLine("Incorrect input!");
-                return;
-            }
-            if (!int.TryParse(Console.ReadLine(), out i2))
-            {
-                Console.WriteLine("Incorrect input!");
+                Console.WriteLine("Incorrect input\n");
                 return;
             }
 
-            Swap(ref i1, ref i2);
-            Console.WriteLine("i1 = {0}; i2 = {1}", i1, i2);
-        }
-
-        /// <summary>
-        /// 6. Ввести возраст человека (от 1 до 150 лет) и вывести его вместе с последующим словом «год», «года» или «лет».
-        /// </summary>
-        static void Task4()
-        {
-            int age;
-
-            Console.WriteLine("\n");
-            Console.WriteLine("Введите возраст от 1 до 150 лет.");
-
-            do
+            // Заполнение массива значений;
+            Console.WriteLine($"Input {n} elements\n");
+            int[] array = new int[n];
+            for (int i = 0; i < n; i++)
             {
+                Console.Write($"{i}: ");
+                int.TryParse(Console.ReadLine(), out array[i]);
+            }
 
-            } while (!int.TryParse(Console.ReadLine(), out age) || age < 1 || age > 150);
+            BubbleSortOpt(ref array);
 
-            Console.WriteLine("{0} {1}", age, StringAge(age));
+            TreeNode root = BinarySearchTree.CreateBalansedTree(array, array.Length / 2, 0, array.Length - 1);
+
+            Console.WriteLine();
+            Console.WriteLine(root.ToString());
+
+            Console.Write("Pre-order: ");
+            foreach (var item in root.PreOrder())
+            {
+                Console.Write(item.Data + " ");
+            }
+
+            Console.Write("\nIn-order: ");
+            foreach (var item in root.InOrder())
+            {
+                Console.Write(item.Data + " ");
+            }
+
+            Console.Write("\nPost-order: ");
+            foreach (var item in root.PostOrder())
+            {
+                Console.Write(item.Data + " ");
+            }
+
+            Console.Write("\n\nEnter value to search: ");
+            int.TryParse(Console.ReadLine(), out n);
+
+            Console.WriteLine();
+            Console.WriteLine($"Found subtree is: {BinarySearchTree.Find(root, n)}");
+
+            Console.ReadKey();
+        }
+
+        static int GetHash(string str)
+        {
+            int res = 0;
+            foreach (char ch in str)
+            {
+                res += ch;
+            }
+            return res;
+        }
+
+        static void Swap(ref int a, ref int b)
+        {
+            int tmp = a;
+            a = b;
+            b = tmp;
         }
 
         /// <summary>
-        /// Индекс массы тела.
+        /// Оптимизированная сортировка методом пузырька.
         /// </summary>
-        /// <param name="m"></param>
-        /// <param name="h"></param>
+        /// <param name="intArray"></param>
         /// <returns></returns>
-        static float MassIndex(float m, float h)
+        static SortingMetrics BubbleSortOpt(ref int[] intArray, bool assend = true)
         {
-            return m / (h * h);
-        }
+            SortingMetrics res = new SortingMetrics() { Swaps = 0, Compares = 0 };
 
-        /// <summary>
-        /// Максимальное число из 4
-        /// </summary>
-        /// <param name="i1"></param>
-        /// <param name="i2"></param>
-        /// <param name="i3"></param>
-        /// <param name="i4"></param>
-        /// <returns></returns>
-        static int MaxInt(int i1, int i2, int i3, int i4)
-        {
-            int max;
+            int tmp = 0;
+            for (int i = 0; i < intArray.Length; i++)
+            {
+                tmp = 0;
+                for (int j = 0; j < intArray.Length - 1 - i; j++)
+                {
+                    res.Compares++;
 
-            if (i1 > i2)
-                max = i1;
-            else
-                max = i2;
+                    if ((assend && intArray[j] > intArray[j + 1]) || (!assend && intArray[j] < intArray[j + 1]))
+                    {
+                        tmp++;
+                        Swap(ref intArray[j], ref intArray[j + 1]);
+                        res.Swaps++;
+                    }
+                }
 
-            if (i3 > max)
-                max = i3;
-
-            if (i4 > max)
-                max = i4;
-
-            return max;
-        }
-
-        static void Swap(ref int i1, ref int i2)
-        {
-            //// с использованием третьей переменной
-            //int i0 = i1;
-            //i2 = i1;
-            //i1 = i0;
-
-            // без использования третьей переменной
-            i1 ^= i2;
-            i2 = i1 ^ i2;
-            i1 = i1 ^ i2;
-
-        }
-
-        /// <summary>
-        /// Возвращает "год", "года" или "лет" в зависимости от переданного значения
-        /// </summary>
-        /// <returns></returns>
-        static string StringAge(int age)
-        {
-            string res = "";
-            int ost = age % 10;
-
-            if (ost == 1 && age % 100 != 11)
-                res = "год";
-            else if(ost == 0 || (age % 100 > 10 && age % 100 < 20))
-                res = "лет";
-            else
-                res = "года";
+                // Если перестановок не было, массив отсортирован.
+                if (tmp == 0)
+                    break;
+            }
 
             return res;
         }
+
     }
 }
