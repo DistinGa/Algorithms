@@ -1,5 +1,7 @@
 ﻿// Вавилов Дмитрий. C#
 using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Algorithms
 {
@@ -7,233 +9,313 @@ namespace Algorithms
     {
         static void Main(string[] args)
         {
+            List<BaseMenuItem> Menu = new List<BaseMenuItem>();
+            Menu.Add(new BaseMenuItem("Exit", () => { Console.WriteLine("\n\nBye!"); }));
+            Menu.Add(new BaseMenuItem("Binary tree search", new Action(Task1)));
+            Menu.Add(new BaseMenuItem("Quick sort", new Action(Task2)));
+            Menu.Add(new BaseMenuItem("Comparing", new Action(Task3)));
+
             int task;
 
             do
             {
-                task = GetTask();
-
-                switch (task)
-                {
-                    case 0:
-                        Console.WriteLine("\n\nBye!");
-                        break;
-                    case 1:
-                        Task1();
-                        break;
-                    case 2:
-                        Task2();
-                        break;
-                    case 3:
-                        Task3();
-                        break;
-                    case 4:
-                        Task4();
-                        break;
-                    default:
-                        break;
-                }
+                ShowMenu(Menu);
+                task = GetTask(Menu.Count);
+                Menu[task].DoMenuAction();
             }
             while (task != 0);
 
             Console.ReadKey();
         }
 
+
+        static void ShowMenu(List<BaseMenuItem> menuItems)
+        {
+            Console.Clear();
+
+            for (int i = 0; i < menuItems.Count; i++)
+            {
+                Console.WriteLine($"{i}: {menuItems[i].MenuItemText}");
+            }
+        }
+
         /// <summary>
         /// Выбор задачи
         /// </summary>
         /// <returns></returns>
-        static int GetTask()
+        static int GetTask(int itemsCount)
         {
-            Console.WriteLine();
-            Console.WriteLine("Select an action:");
-            Console.WriteLine("0: Exit");
-            Console.WriteLine("1: Mass index");
-            Console.WriteLine("2: Max of 4 ints");
-            Console.WriteLine("3: Swap 2 ints");
-            Console.WriteLine("4: Age");
-
             string selection = Console.ReadKey().KeyChar.ToString();
-            int res;
+            int res = 0;
 
-            try
+            if (!int.TryParse(selection, out res))
             {
-                res = int.Parse(selection);
+                Console.WriteLine("Incorrect input!");
+                return GetTask(itemsCount);
             }
-            catch (Exception)
+
+            if (res < 0 || res > itemsCount)
             {
-                // Неправильный ввод
-                return GetTask();
+                Console.WriteLine("Incorrect input!");
+                return GetTask(itemsCount);
             }
 
             return res;
         }
 
         /// <summary>
-        /// 1. Ввести вес и рост человека. Рассчитать и вывести индекс массы тела по формуле I=m/(h*h); где m-масса тела в килограммах, h - рост в метрах.
+        /// Сортировка по дереву бинарного поиска.
         /// </summary>
         static void Task1()
         {
-            float m, h;
-
             Console.WriteLine("\n");
-            Console.WriteLine("Enter body mass (kg): ");
-
-            if (!float.TryParse(Console.ReadLine(), out m))
+            Console.WriteLine("Input elements count\n");
+            int n;
+            if (!int.TryParse(Console.ReadLine(), out n))
             {
-                Console.WriteLine("Incorrect input!");
+                Console.WriteLine("Incorrect input\n");
                 return;
             }
 
+            // Заполнение массива значений;
+            int[] array = GetRandomArray(n);
+
+            SortingMetrics sm = SearchTreeSort(array);
+
             Console.WriteLine();
-            Console.WriteLine("Enter body height (m): ");
-            do
+            foreach (var item in array)
             {
-                if (!float.TryParse(Console.ReadLine(), out h))
-                {
-                    Console.WriteLine("Incorrect input!");
-                    return;
-                }
-
-                if (h == 0)
-                    Console.WriteLine("Height must be non equal to 0.");
+                Console.Write($"{item}\t");
             }
-            while (h == 0);
 
-            Console.WriteLine("Mass index = {0}", MassIndex(m, h));
+            Console.WriteLine($"\nQuick sort - Compares: {sm.Compares}; Swaps: {sm.Swaps}");
+
+            Console.ReadKey();
         }
 
         /// <summary>
-        /// 2. Найти максимальное из четырех чисел. Массивы не использовать.
+        /// 2. Реализовать быструю сортировку.
         /// </summary>
         static void Task2()
         {
-            int i1, i2, i3, i4;
-
             Console.WriteLine("\n");
-            Console.WriteLine("Enter four inegers.");
-            if (!int.TryParse(Console.ReadLine(), out i1))
+            Console.WriteLine("Input elements count\n");
+            int n;
+            if (!int.TryParse(Console.ReadLine(), out n))
+            {
+                Console.WriteLine("Incorrect input\n");
                 return;
-            if (!int.TryParse(Console.ReadLine(), out i2))
-                return;
-            if (!int.TryParse(Console.ReadLine(), out i3))
-                return;
-            if (!int.TryParse(Console.ReadLine(), out i4))
-                return;
+            }
 
-            Console.WriteLine("Max integer is {0}", MaxInt(i1, i2, i3, i4));
+            // Заполнение массива значений;
+            int[] array = GetRandomArray(n);
+
+            SortingMetrics sm = new SortingMetrics() { Swaps = 0, Compares = 0 };
+            QuickSort(array, 0, array.Length - 1, ref sm);
+
+            Console.WriteLine();
+            foreach (var item in array)
+            {
+                Console.Write($"{item}\t");
+            }
+            Console.WriteLine($"\nQuick sort - Compares: {sm.Compares}; Swaps: {sm.Swaps}");
+
+            Console.ReadKey();
         }
 
         /// <summary>
-        /// 3. Написать программу обмена значениями двух целочисленных переменных
+        /// Сравнение различных методов сортировки.
         /// </summary>
         static void Task3()
         {
-            int i1, i2;
-
             Console.WriteLine("\n");
-            Console.WriteLine("Enter two integers.");
-            if (!int.TryParse(Console.ReadLine(), out i1))
+            Console.WriteLine("Input elements count\n");
+            int n;
+            if (!int.TryParse(Console.ReadLine(), out n))
             {
-                Console.WriteLine("Incorrect input!");
-                return;
-            }
-            if (!int.TryParse(Console.ReadLine(), out i2))
-            {
-                Console.WriteLine("Incorrect input!");
+                Console.WriteLine("Incorrect input\n");
                 return;
             }
 
-            Swap(ref i1, ref i2);
-            Console.WriteLine("i1 = {0}; i2 = {1}", i1, i2);
+            // Заполнение массива значений;
+            int[] array = GetRandomArray(n);
+            int[] cloneArray;
+            SortingMetrics sm = new SortingMetrics() { Swaps = 0, Compares = 0 };
+            DateTime t;
+
+            cloneArray = (int[])array.Clone();
+            t = DateTime.Now;
+            sm = BubbleSortOpt(cloneArray);
+            Console.WriteLine($"\nOptimized bubble sort - Compares: {sm.Compares}; Swaps: {sm.Swaps}");
+            Console.WriteLine($"Time: {(DateTime.Now - t).TotalSeconds} seconds");
+
+            sm = new SortingMetrics() { Swaps = 0, Compares = 0 };
+            cloneArray = (int[])array.Clone();
+            t = DateTime.Now;
+            QuickSort(cloneArray, 0, cloneArray.Length - 1, ref sm);
+            Console.WriteLine($"\nQuick sort - Compares: {sm.Compares}; Swaps: {sm.Swaps}");
+            Console.WriteLine($"Time: {(DateTime.Now - t).TotalMilliseconds} Milliseconds");
+
+            sm = new SortingMetrics() { Swaps = 0, Compares = 0 };
+            cloneArray = (int[])array.Clone();
+            t = DateTime.Now;
+            sm = SearchTreeSort(cloneArray);
+            Console.WriteLine($"\nSearch tree sort - Compares: {sm.Compares}; Swaps: {sm.Swaps}");
+            Console.WriteLine($"Time: {(DateTime.Now - t).TotalMilliseconds} Milliseconds");
+
+            Console.ReadKey();
         }
 
-        /// <summary>
-        /// 6. Ввести возраст человека (от 1 до 150 лет) и вывести его вместе с последующим словом «год», «года» или «лет».
-        /// </summary>
-        static void Task4()
+        static void Swap(ref int a, ref int b)
         {
-            int age;
+            int tmp = a;
+            a = b;
+            b = tmp;
+        }
 
-            Console.WriteLine("\n");
-            Console.WriteLine("Введите возраст от 1 до 150 лет.");
-
-            do
+        static int[] GetRandomArray(int length)
+        {
+            int[] array = new int[length];
+            Random rnd = new Random();
+            for (int i = 0; i < length; i++)
             {
+                array[i] = rnd.Next(length);
+            }
 
-            } while (!int.TryParse(Console.ReadLine(), out age) || age < 1 || age > 150);
-
-            Console.WriteLine("{0} {1}", age, StringAge(age));
+            return array;
         }
 
         /// <summary>
-        /// Индекс массы тела.
+        /// Оптимизированная сортировка методом пузырька.
         /// </summary>
-        /// <param name="m"></param>
-        /// <param name="h"></param>
+        /// <param name="intArray"></param>
         /// <returns></returns>
-        static float MassIndex(float m, float h)
+        static SortingMetrics BubbleSortOpt(int[] intArray, bool assend = true)
         {
-            return m / (h * h);
-        }
+            SortingMetrics res = new SortingMetrics() { Swaps = 0, Compares = 0 };
 
-        /// <summary>
-        /// Максимальное число из 4
-        /// </summary>
-        /// <param name="i1"></param>
-        /// <param name="i2"></param>
-        /// <param name="i3"></param>
-        /// <param name="i4"></param>
-        /// <returns></returns>
-        static int MaxInt(int i1, int i2, int i3, int i4)
-        {
-            int max;
+            int tmp = 0;
+            for (int i = 0; i < intArray.Length; i++)
+            {
+                tmp = 0;
+                for (int j = 0; j < intArray.Length - 1 - i; j++)
+                {
+                    res.Compares++;
 
-            if (i1 > i2)
-                max = i1;
-            else
-                max = i2;
+                    if ((assend && intArray[j] > intArray[j + 1]) || (!assend && intArray[j] < intArray[j + 1]))
+                    {
+                        tmp++;
+                        Swap(ref intArray[j], ref intArray[j + 1]);
+                        res.Swaps++;
+                    }
+                }
 
-            if (i3 > max)
-                max = i3;
-
-            if (i4 > max)
-                max = i4;
-
-            return max;
-        }
-
-        static void Swap(ref int i1, ref int i2)
-        {
-            //// с использованием третьей переменной
-            //int i0 = i1;
-            //i2 = i1;
-            //i1 = i0;
-
-            // без использования третьей переменной
-            i1 ^= i2;
-            i2 = i1 ^ i2;
-            i1 = i1 ^ i2;
-
-        }
-
-        /// <summary>
-        /// Возвращает "год", "года" или "лет" в зависимости от переданного значения
-        /// </summary>
-        /// <returns></returns>
-        static string StringAge(int age)
-        {
-            string res = "";
-            int ost = age % 10;
-
-            if (ost == 1 && age % 100 != 11)
-                res = "год";
-            else if(ost == 0 || (age % 100 > 10 && age % 100 < 20))
-                res = "лет";
-            else
-                res = "года";
+                // Если перестановок не было, массив отсортирован.
+                if (tmp == 0)
+                    break;
+            }
 
             return res;
+        }
+
+        /// <summary>
+        /// 2. Реализовать быструю сортировку.
+        /// </summary>
+        static void QuickSort(int[] array, int startIndx, int finishIndx, ref SortingMetrics sm)
+        {
+            if (startIndx == finishIndx)
+                return;
+
+            int left = startIndx;
+            int right = finishIndx;
+            int root = array[startIndx];
+
+            while (left < right)
+            {
+                if (array[left] < root)
+                {
+                    sm.Compares++;
+                    left++;
+                    continue;
+                }
+
+                if (array[right] >= root)
+                {
+                    sm.Compares++;
+                    right--;
+                    continue;
+                }
+
+                Swap(ref array[left], ref array[right]);
+                sm.Swaps++;
+            }
+
+            // Сейчас left = right
+            if (left > startIndx)
+                left--;
+            else
+                right++;
+
+            QuickSort(array, startIndx, left, ref sm);
+            QuickSort(array, right, finishIndx, ref sm);
+        }
+
+        static SortingMetrics SearchTreeSort(int[] array)
+        {
+            SortingMetrics sm = new SortingMetrics() { Swaps = 0, Compares = 0 };
+            TreeNode root = new TreeNode(array[0], null, null);
+            for (int i = 1; i < array.Length; i++)
+            {
+                GrowSearchTree(root, array[i], ref sm);
+            }
+
+            int j = 0;
+            foreach (var item in root.InOrder())
+            {
+                array[j++] = item.Data;
+            }
+
+            return sm;
+        }
+
+        /// <summary>
+        /// Размещение нового узла на дереве.
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="newElement"></param>
+        /// <param name="sm"></param>
+        static void GrowSearchTree(TreeNode root, int newElement, ref SortingMetrics sm)
+        {
+            TreeNode current = root;
+            while (current != null)
+            {
+                sm.Compares++;
+
+                if (newElement < current.Data)
+                {
+                    if (current.LeftNode == null)
+                    {
+                        current.LeftNode = new TreeNode(newElement, null, null, current);
+                        current = null; // Заканчиваем цикл.
+                    }
+                    else
+                    {
+                        current = current.LeftNode;
+                    }
+                }
+                else
+                {
+                    if (current.RightNode == null)
+                    {
+                        current.RightNode = new TreeNode(newElement, null, null, current);
+                        current = null; // Заканчиваем цикл.
+                    }
+                    else
+                    {
+                        current = current.RightNode;
+                    }
+                }
+            }
         }
     }
 }
