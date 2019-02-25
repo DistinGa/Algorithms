@@ -8,7 +8,7 @@ namespace Algorithms
 {
     public struct SortingMetrics
     {
-        public int Compares;
-        public int Swaps;
+        public uint Compares;
+        public uint Swaps;
     }
 }
